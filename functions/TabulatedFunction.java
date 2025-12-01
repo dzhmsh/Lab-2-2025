@@ -1,6 +1,8 @@
 package functions;
 
 public class TabulatedFunction {
+
+    private static final double EPS = 1e-9;
     private FunctionPoint arrayOfPoints[];
     private int pointCount;
 
@@ -51,14 +53,14 @@ public class TabulatedFunction {
 
     // должен возвращать значение функции в точке x
     public double getFunctionValue(double x) {
-        if ((x > getRightDomainBorder()) || (x < getLeftDomainBorder()))
+        if ((x > getRightDomainBorder() + EPS) || (x < getLeftDomainBorder() - EPS))
             return Double.NaN;
 
-        if (x == arrayOfPoints[0].getX())
+        if (Math.abs(x - arrayOfPoints[0].getX()) < EPS)
             return arrayOfPoints[0].getY();
 
         for (int i = 1; i < pointCount; i++) {
-            if (arrayOfPoints[i].getX() == x)
+            if (Math.abs(arrayOfPoints[i].getX() - x) < EPS)
                 return arrayOfPoints[i].getY();
 
             if (arrayOfPoints[i].getX() > x) {
@@ -87,9 +89,9 @@ public class TabulatedFunction {
     public void setPoint(int index, FunctionPoint point) {
         if (index < 0 || index > getPointsCount() - 1)
             return;
-        if (index > 0 && point.getX() <= arrayOfPoints[index - 1].getX())
+        if (index > 0 && point.getX() <= arrayOfPoints[index - 1].getX() + EPS)
             return;
-        if (index < getPointsCount() - 1 && point.getX() >= arrayOfPoints[index + 1].getX())
+        if (index < getPointsCount() - 1 && point.getX() >= arrayOfPoints[index + 1].getX() - EPS)
             return;
 
         FunctionPoint NewPoint = new FunctionPoint(point);
@@ -117,12 +119,12 @@ public class TabulatedFunction {
             return;
         }
 
-        if (index == 0 && arrayOfPoints[1].getX() > x) {
+        if (index == 0 && arrayOfPoints[1].getX() > x + EPS) {
             arrayOfPoints[index].setX(x);
-        } else if (index == pointCount - 1 && arrayOfPoints[pointCount - 2].getX() < x) {
+        } else if (index == pointCount - 1 && arrayOfPoints[pointCount - 2].getX() < x - EPS) {
             arrayOfPoints[index].setX(x);
         } else if (index > 0 && index < pointCount - 1 &&
-                arrayOfPoints[index - 1].getX() < x && arrayOfPoints[index + 1].getX() > x) {
+                arrayOfPoints[index - 1].getX() < x - EPS && arrayOfPoints[index + 1].getX() > x + EPS) {
             arrayOfPoints[index].setX(x);
         }
     }
@@ -151,11 +153,11 @@ public class TabulatedFunction {
         FunctionPoint newPoint = new FunctionPoint(point);
 
         int insertIndex = 0;
-        while (insertIndex < pointCount && arrayOfPoints[insertIndex].getX() < newPoint.getX()) {
+        while (insertIndex < pointCount && arrayOfPoints[insertIndex].getX() < newPoint.getX() - EPS) {
             insertIndex++;
         }
 
-        if (insertIndex < pointCount && arrayOfPoints[insertIndex].getX() == newPoint.getX()) {
+        if (insertIndex < pointCount && Math.abs(arrayOfPoints[insertIndex].getX() - newPoint.getX()) < EPS) {
             return;
         }
 
